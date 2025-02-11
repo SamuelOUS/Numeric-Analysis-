@@ -1,20 +1,29 @@
-#This code allows us to create an N grade polinomy in order to show the result of it.
-
+import math
 import sympy as sp
 import numpy as np
 import matplotlib.pyplot as plt
 from math import factorial
 x = sp.symbols('x')
-f = 2 ** x
+f = sp.log((x ** 2) + 1)
 
 def SerieTaylor(f, x0, n):
-
+    delta = 2
+    u_x = np.linspace(x0 - delta, x0 + delta, 100)
     P = 0
+
     for k in range (n+1):
+
         df = sp.diff(f,x,k)
         df.evalf(subs={x:x0})
+        df = sp.lambdify(x, df)
+        plt.plot(u_x, df(u_x), 'b,', label = '$Grado n')
+        plt.legend()
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.show()
         P += df * (x - x0) ** k/factorial(k)
+
     return sp.expand(P)
 
-print(SerieTaylor(f, 0, 20))
+print(SerieTaylor(f, 1, 6))
 plt.show()
