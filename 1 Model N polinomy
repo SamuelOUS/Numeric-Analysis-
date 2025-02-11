@@ -1,0 +1,18 @@
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+from math import factorial
+x = sp.symbols('x')
+f = 2 ** x
+
+def SerieTaylor(f, x0, n):
+
+    P = 0
+    for k in range (n+1):
+        df = sp.diff(f,x,k)
+        df.evalf(subs={x:x0})
+        P += df * (x - x0) ** k/factorial(k)
+    return sp.expand(P)
+
+print(SerieTaylor(f, 0, 20))
+plt.show()
