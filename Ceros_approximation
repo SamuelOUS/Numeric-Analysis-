@@ -9,12 +9,10 @@ g = 32.17
 t = 1
 x = 1.7
 
-f = lambda  w: -(g/2*w**2)*((np.exp(w*t) - np.exp((-w *t )) / 2-np.sin(w*t))) - x
+f = lambda  w: -g/(2*w**2)*((np.exp(w*t) - np.exp(-w *t )) / 2-np.sin(w*t)) - x
 aproximaciones  = np.linspace(-3, -1e-3, 100)
 plt.pyplot.plot(aproximaciones, f(aproximaciones), 'b' )
 plt.pyplot.axhline(0, color = 'red', linewidth = 1, linestyle = 'dashed')
-plt.pyplot.grid()
-plt.pyplot.show()
 valores = []
 
 def AproximacionACero(f, a,b, error):
@@ -25,13 +23,16 @@ def AproximacionACero(f, a,b, error):
             while abs(b-a) > error:
                 p = (a+b) / 2
                 valores.append(p)
+                print(valores)
                 if  (f(a)* f(p) > 0):
                       a = p
 
                 else:
                      b = p
 
-                return p
+            return p
 
-print(AproximacionACero(f, -1, -1e-3, 10**-2))
+print(AproximacionACero(f, -1, -1e-3, 1e-5))
+plt.pyplot.grid()
+plt.pyplot.show()
 
