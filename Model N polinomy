@@ -1,29 +1,72 @@
 import math
-import sympy as sp
 import numpy as np
-import matplotlib.pyplot as plt
+import sympy as sp
+from matplotlib import pyplot as plt
 from math import factorial
-x = sp.symbols('x')
-f = sp.log((x ** 2) + 1)
+x_symbol = sp.symbols('x')
+x0 = 0
+x_values = [1, 4.5]
 
-def SerieTaylor(f, x0, n):
-    delta = 2
-    u_x = np.linspace(x0 - delta, x0 + delta, 100)
-    P = 0
 
-    for k in range (n+1):
+def f(x):
+    return sp.exp(2 * x) * sp.cos(2*x)
 
-        df = sp.diff(f,x,k)
-        df.evalf(subs={x:x0})
-        df = sp.lambdify(x, df)
-        plt.plot(u_x, df(u_x), 'b,', label = '$Grado n')
-        plt.legend()
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.show()
-        P += df * (x - x0) ** k/factorial(k)
+def serie_taylor(f, x0, n):
+    p = 0
+    for i in range(n + 1):
+        df = sp.diff(f,x_symbol,i)
+        dfe = df.subs(x_symbol,x0)
+        p += dfe * (x_symbol - x0) ** i / factorial(i)
 
-    return sp.expand(P)
+    return sp.expand(p)
 
-print(SerieTaylor(f, 1, 6))
+fe= sp.lambdify(x_symbol, f(x_symbol))
+p3_expr = serie_taylor(f(x_symbol),0,3)
+p3 = sp.lambdify(x_symbol, p3_expr)
+
+for x in x_values:
+    valor_real = fe(x)
+    valor_aproximado = p3(x)
+    error_absoluto = abs(fe(x) - p3(x))
+    error_relativo = (error_absoluto / valor_real)
+    print(f"\nPara x = {x}:")
+    print(f"  Valor real: {valor_real:.4f}")
+    print(f"  Aproximación P3(x): {valor_aproximado:.4f}")
+    print(f"  Error absoluto: {error_absoluto:.4f}")
+    print(f"  Error relativo: {error_relativo:.4f}%")
+
+
+x_vals  = np.linspace(-2, 2, 100)
+f_vals = fe(x_vals)
+
+p1_expr = serie_taylor(f(x_symbol),0,1)
+p1 = sp.lambdify(x_symbol, p1_expr)
+p1_vals = p1(x_vals)
+print(p1_expr)
+
+p2_expr = serie_taylor(f(x_symbol),0,2)
+p2 = sp.lambdify(x_symbol, p2_expr)
+p2_vals = p2(x_vals)
+
+p4_expr = serie_taylor(f(x_symbol),0,4)
+p4 = sp.lambdify(x_symbol, p4_expr)
+p4_vals = p4(x_vals)
+
+p6_expr = serie_taylor(f(x_symbol),0,6)
+p6 = sp.lambdify(x_symbol, p6_expr)
+p6_vals = p6(x_vals)
+
+plt.figure(figsize=(10, 6))
+plt.plot(x_vals, f_vals, label = 'valores de f', linewidth = 2, color = 'black' )
+plt.plot(x_vals, p1_vals, label = 'valores de p1', linewidth = 2, color = 'white')
+plt.plot(x_vals, p2_vals, label = 'valores de p2', linewidth = 2 , color = 'red')
+plt.plot(x_vals, p4_vals, label = 'valores de p4', linewidth = 2, color = 'grey' )
+plt.plot(x_vals, p6_vals, label ='valores de p6', linewidth = 2, color = 'green')
+
+
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title(f'aproximaciones a la funcion {f(x_symbol)} mediante taylor ')
+plt.legend()
+plt.grid()
 plt.show()
