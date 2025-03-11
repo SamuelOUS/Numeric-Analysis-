@@ -20,6 +20,16 @@ def serie_taylor(f, x0, n):
 
     return sp.expand(p)
 
+def error_truncamiento(f, x0, n, x_error):
+    derivada_1 = sp.diff(f, x_symbol, n + 1)
+    derivada_max = max(abs(derivada_1.subs(x_symbol, x1)) for x1 in np.linspace(x0, x_error, 100))
+    error = ((derivada_max) / sp.factorial(n+1)) * abs(x_error - x0)**(n + 1)
+    return error
+
+
+print(f'error de truncamiento = {error_truncamiento(f(x_symbol), 0, 3, 0.5)}')
+
+
 fe= sp.lambdify(x_symbol, f(x_symbol))
 p3_expr = serie_taylor(f(x_symbol),0,3)
 p3 = sp.lambdify(x_symbol, p3_expr)
@@ -34,6 +44,8 @@ for x in x_values:
     print(f"  Aproximación P3(x): {valor_aproximado:.4f}")
     print(f"  Error absoluto: {error_absoluto:.4f}")
     print(f"  Error relativo: {error_relativo:.4f}%")
+
+
 
 
 x_vals  = np.linspace(-2, 2, 100)
