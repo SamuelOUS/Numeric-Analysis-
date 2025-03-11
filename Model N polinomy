@@ -1,84 +1,93 @@
-import math
-import numpy as np
+import matplotlib.pyplot as plt
 import sympy as sp
-from matplotlib import pyplot as plt
-from math import factorial
+import numpy as np
+
+
 x_symbol = sp.symbols('x')
 x0 = 0
-x_values = [1, 4.5]
+n = 3
 
 
 def f(x):
-    return sp.exp(2 * x) * sp.cos(2*x)
+    return sp.exp(2*x) * sp.sin(x)
 
-def serie_taylor(f, x0, n):
+
+def polinomio(f, x0, n):
     p = 0
     for i in range(n + 1):
-        df = sp.diff(f,x_symbol,i)
-        dfe = df.subs(x_symbol,x0)
-        p += dfe * (x_symbol - x0) ** i / factorial(i)
+        df = sp.diff(f, x_symbol, i)
+        df_eval = df.subs(x_symbol, x0)
+        p += (df_eval * (x_symbol - x0) ** i)/sp.factorial(i)
 
     return sp.expand(p)
 
-def error_truncamiento(f, x0, n, x_error):
-    derivada_1 = sp.diff(f, x_symbol, n + 1)
-    derivada_max = max(abs(derivada_1.subs(x_symbol, x1)) for x1 in np.linspace(x0, x_error, 100))
-    error = ((derivada_max) / sp.factorial(n+1)) * abs(x_error - x0)**(n + 1)
-    return error
+
+def error_truncamiento(f, x0, n, error):
+    df_1 = sp.diff(f, x_symbol, n+1)
+    df_maxed = max(abs(df_1.subs(x_symbol, x1)) for x1 in np.linspace(x0, error, 100))
+    error_final = (df_maxed / sp.factorial(n + 1)) * abs(error - x0) ** (n + 1)
+
+    return error_final
 
 
-print(f'error de truncamiento = {error_truncamiento(f(x_symbol), 0, 3, 0.5)}')
+print(f'el error de truncamiento es {error_truncamiento(f(x_symbol), x0,3 , 1)}')
 
 
-fe= sp.lambdify(x_symbol, f(x_symbol))
-p3_expr = serie_taylor(f(x_symbol),0,3)
-p3 = sp.lambdify(x_symbol, p3_expr)
+polinomio_definido = polinomio(f(x_symbol), x0, 3)
+polinomio_eval = sp.lambdify(x_symbol, polinomio_definido)
 
-for x in x_values:
-    valor_real = fe(x)
-    valor_aproximado = p3(x)
-    error_absoluto = abs(fe(x) - p3(x))
-    error_relativo = (error_absoluto / valor_real)
-    print(f"\nPara x = {x}:")
-    print(f"  Valor real: {valor_real:.4f}")
-    print(f"  Aproximación P3(x): {valor_aproximado:.4f}")
-    print(f"  Error absoluto: {error_absoluto:.4f}")
-    print(f"  Error relativo: {error_relativo:.4f}%")
+original_definida = f(x_symbol)
+original_evaluda = sp.lambdify(x_symbol, original_definida)
 
 
+def errores(f, p, x):
+    print(f'error en el valor {x} para la funcion original es  {original_evaluda(x)}')
+    print(f'error en el valor {x} para la aproximacion es  {polinomio_eval(x)}')
+
+    print(f'el error absoluto es {abs(polinomio_eval(x) - original_evaluda(x))} evaluado en {x}')
+    print(f'el error relativo es {abs((polinomio_eval(x) - original_evaluda(x))/ original_evaluda(x))}')
 
 
-x_vals  = np.linspace(-2, 2, 100)
-f_vals = fe(x_vals)
+errores(f(x_symbol), polinomio(f(x_symbol), x0, 3), 4.5)
+errores(original_definida, polinomio_definido, 1)
+x_vals = np.linspace(1, 4.5)
 
-p1_expr = serie_taylor(f(x_symbol),0,1)
-p1 = sp.lambdify(x_symbol, p1_expr)
-p1_vals = p1(x_vals)
-print(p1_expr)
 
-p2_expr = serie_taylor(f(x_symbol),0,2)
-p2 = sp.lambdify(x_symbol, p2_expr)
-p2_vals = p2(x_vals)
+f_vals = f(x_symbol)
+f_evals = sp.lambdify(x_symbol, f_vals)
+f_vals = f_evals(x_vals)
 
-p4_expr = serie_taylor(f(x_symbol),0,4)
-p4 = sp.lambdify(x_symbol, p4_expr)
-p4_vals = p4(x_vals)
+P1 = polinomio(f(x_symbol), x0, 1)
+P1_eval = sp.lambdify(x_symbol, P1)
+P1_vals = P1_eval(x_vals)
 
-p6_expr = serie_taylor(f(x_symbol),0,6)
-p6 = sp.lambdify(x_symbol, p6_expr)
-p6_vals = p6(x_vals)
+P2 = polinomio(f(x_symbol), x0, 2)
+P2_eval = sp.lambdify(x_symbol, P2)
+P2_vals = P2_eval(x_vals)
 
-plt.figure(figsize=(10, 6))
-plt.plot(x_vals, f_vals, label = 'valores de f', linewidth = 2, color = 'black' )
-plt.plot(x_vals, p1_vals, label = 'valores de p1', linewidth = 2, color = 'white')
-plt.plot(x_vals, p2_vals, label = 'valores de p2', linewidth = 2 , color = 'red')
-plt.plot(x_vals, p4_vals, label = 'valores de p4', linewidth = 2, color = 'grey' )
-plt.plot(x_vals, p6_vals, label ='valores de p6', linewidth = 2, color = 'green')
+P4 = polinomio(f(x_symbol), x0, 4)
+P4_eval = sp.lambdify(x_symbol, P4)
+P4_vals = P4_eval(x_vals)
 
+P6 = polinomio(f(x_symbol), x0, 6)
+P6_eval = sp.lambdify(x_symbol, P6)
+P6_vals = P6_eval(x_vals)
+
+
+plt.figure(figsize=(100, 60 ))
+plt.plot(x_vals, f_vals, label = f'valores de f', linewidth = 2, color = 'black')
+plt.plot(x_vals, P1_vals, label = f'funcion P1', linewidth = 2, color = 'red')
+plt.plot(x_vals, P2_vals, label = f'funcion P2', linewidth = 2, color = 'green')
+plt.plot(x_vals, P4_vals, label = f'funcion P4', linewidth = 2, color = 'grey')
+plt.plot(x_vals, P6_vals, label = f'funcion P6', linewidth = 2, color = 'yellow')
 
 plt.xlabel('x')
 plt.ylabel('y')
-plt.title(f'aproximaciones a la funcion {f(x_symbol)} mediante taylor ')
-plt.legend()
 plt.grid()
+plt.legend('Aproximaciones con polinomios')
 plt.show()
+
+
+plt.Figure(figsize=(100,60))
+plt.plot()
+
