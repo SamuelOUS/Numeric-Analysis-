@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def f(w):
+    if np.isclose(1 - w**2, 0, atol=1e-6):
+        return np.nan
+    return np.tan(w / 3 - 1) - (2 * w) / (1 - w**2)
+
+def AproximacionACero(f, a, b, error):
+    if f(a) * f(b) > 0:
+        print("No se garantiza el teorema de Bolzano en el intervalo dado.")
+        return None
+    while abs(b - a) > error:
+        p = (a + b) / 2
+        fp = f(p)
+
+        if f(a) * fp < 0:
+            b = p
+        else:
+            a = p
+    return (a + b) / 2
+
+
+a, b = -1, -0.5
+
+omega = AproximacionACero(f, a, b, 1e-5)
+
+print(f"La frecuencia angular ω encontrada es: {omega:.5f}")
+
+w_vals = np.linspace(-10, 10, 5000)
+y_vals = np.array([f(w) if not np.isnan(f(w)) and abs(f(w)) < 20 else np.nan for w in w_vals])
+
+plt.plot(w_vals, y_vals, 'b', label="f(ω)")
+plt.axhline(0, color='red', linewidth=1, linestyle='dashed')
+plt.axvline(omega, color='green', linestyle='dashed', label=f"ω ≈ {omega:.5f}")
+plt.xlabel("ω")
+plt.ylabel("f(ω)")
+plt.legend()
+plt.grid()
+plt.ylim(-10, 10)
+plt.show()
