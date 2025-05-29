@@ -1,0 +1,102 @@
+#Punto A: Use interpolacion polinomial simple para determinar la longitud de un esturion en un tiempo de 20.5 años.
+#Dado el enunciado del ejercicio, se empleará el método de interpolación polinomial de Lagrange con el objetivo de estimar la longitud de un esturión en el año 20.5.
+#Para ello, se construirá un polinomio que pase exactamente por tres puntos conocidos: los años 19, 20 y 21, cuyas respectivas longitudes son 145.0 cm, 148.6 cm y 152.0 cm. La elección de estos tres puntos cercanos al valor a estimar permite evitar oscilaciones innecesarias en el polinomio, reduciendo el error de interpolación y mejorando la precisión de la predicción.
+
+import matplotlib.pyplot as plt
+import numpy as np
+import sympy as sp
+
+x = sp.symbols('x')
+
+
+def Lagrange(x_data, y_data):
+    P = 0
+    n = len(x_data)
+    for i in range(n):
+        Li = 1
+        for j in range(n):
+            if j != i:
+                Li *= (x - x_data[j]) / (x_data[i] - x_data[j])
+        P += Li * y_data[i]
+    return sp.expand(P)
+
+
+x_data = [19, 20, 21]
+
+y_data = [145.0, 148.6, 152.0]
+
+P = sp.lambdify(x, Lagrange(x_data, y_data))
+P_eval = Lagrange(x_data, y_data)
+print("Polinomio de Lagrange:")
+print(P_eval)
+
+valor = P_eval.subs(x, 20.5)
+print(f"Longitud estimada en 20.5 años: {valor:.2f} cm")
+
+ux = np.linspace(min(x_data), max(x_data), 100)
+plt.plot(x_data, y_data, 'gp', label='Datos observados')
+plt.plot(ux, P(ux), 'r', label='Polinomio')
+plt.legend()
+plt.show()
+
+
+#Punto B: Use aproximacion a un solo termino y construya un modelo no lineal para predecir la longitud de un esturion en un tiempo de 20.5 años
+#Para abordar este problema, primero se decidió ajustar un modelo con un solo término transformado. Este término corresponde a una función del tiempo, t, que fue seleccionado tras analizar la tendencia de los datos suministrados.
+
+#Con el fin de linealizar la relación entre la longitud del esturión y el tiempo, se aplicó una transformación basada en una escala de potencias. En particular, se eligió la raíz cuadrada de t + 1 como variable transformada, pues este ajuste permitió representar adecuadamente la curva de crecimiento observada en los datos y fue el resultado de el analisis empirico de las trasformaciones, contando la adicion del 1 para evitar raices de cero y mejorar el ajuste.
+
+#Una vez transformados los datos, se procedió a aplicar el método de mínimos cuadrados sobre este modelo linealizado para estimar los parámetros del modelo. Así, se obtuvo una función final que permite predecir la longitud del esturión para cualquier tiempo, incluyendo el valor solicitado de 20.5 años.
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Datos originales del esturión
+tiempo = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21])
+longitud = np.array([21.1, 32.0, 42.3, 51.4, 60.1, 68.0, 75.3, 75.3, 89.0, 95.3,101.6, 107.6, 127.7, 117.7, 122.2, 126.5, 130.9, 135.3,145.0, 148.6, 152.0])
+
+def minimos_cuadrados(x, y):
+    n = len(x)
+    sum_x = np.sum(x)
+    sum_y = np.sum(y)
+    sum_xy = np.sum(x * y)
+    sum_x2 = np.sum(x ** 2)
+
+    a = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x ** 2)
+    b = (sum_y - a * sum_x) / n
+
+    return a, b
+
+t_transformado = np.sqrt(tiempo + 1)
+
+a, b = minimos_cuadrados(t_transformado, longitud)
+
+print(f"Modelo ajustado: L = {a}·√(t+1) + {b}")
+
+t_pred = 20.5
+L_pred = a * np.sqrt(t_pred + 1) + b
+print(f"Predicción para t = {t_pred} años: {L_pred:.2f} cm")
+
+
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 2, 1)
+plt.scatter(t_transformado, longitud, color='blue')
+plt.plot(t_transformado, a * t_transformado + b, 'r-')
+plt.xlabel('√(t + 1)')
+plt.ylabel('L (cm)')
+plt.title('Ajuste lineal en espacio transformado')
+plt.grid(True)
+
+plt.subplot(1, 2, 2)
+t_plot = np.linspace(0, 21, 100)
+plt.scatter(tiempo, longitud, color='blue')
+plt.plot(t_plot, a * np.sqrt(t_plot + 1) + b, 'r-', label=f'L = {a:.2f}·√(t+1) + {b:.2f}')
+plt.axvline(t_pred, color='green', linestyle='--')
+plt.xlabel('Tiempo (años)')
+plt.ylabel('L (cm)')
+plt.title('Modelo en espacio original')
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
