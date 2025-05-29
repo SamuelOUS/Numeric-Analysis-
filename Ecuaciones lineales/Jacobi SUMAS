@@ -1,30 +1,30 @@
 import numpy as np
+import time
 
-def jacobi_sumas(A, b, x0, Nmax=100, tol=1e-6):
-    n = len(b)
-    x_sol = np.zeros_like(b)
-    error = 10
-    count = 0
+def jacobi_sumatorias(matrix, vector, x_0=None, max_it=50, tol=1e-6):
+    if x_0 is None:
+        x_0 = np.zeros(len(vector), dtype=float)
+    
+    res = [np.copy(x_0)]
+    n = len(vector)
+    x_sol = np.zeros(n, dtype=float)
+    k = 0
+    error = 1
+    start = time.time()
 
-    while error > tol and count < Nmax:
+    while k < max_it and error > tol:
         for i in range(n):
-            suma = 0
+            summatory = 0
             for j in range(n):
-                if j != i:
-                    suma += A[i, j] * x0[j]
-            x_sol[i] = (b[i] - suma) / A[i, i]
-        
-        print(f"Iteración {count + 1}: {x_sol}")
-        error = np.max(np.abs(x_sol - x0))
-        x0 = np.copy(x_sol)
-        count += 1
+                if i != j:
+                    summatory += matrix[i][j] * x_0[j]
+            x_sol[i] = (vector[i] - summatory) / matrix[i][i]
 
-    return x_sol
+        res.append(np.copy(x_sol))  # se agrega al final de la iteración completa
+        error = np.max(np.abs(x_sol - x_0))
+        x_0 = np.copy(x_sol)
+        k += 1
 
-# Ejemplo de uso
-A = np.array([[3, -1, 0], [-1, 4, -1], [0, -1, 5]], dtype=float)
-b = np.array([2, 3, 5], dtype=float)
-x0 = np.zeros_like(b)
-
-sol = jacobi_sumas(A, b, x0)
-print("Solución final:", sol)
+    end = time.time()
+    print(f"Tiempo de computo Jacobi Sumas: {end - start:.5f}s")
+    return x_sol, res
