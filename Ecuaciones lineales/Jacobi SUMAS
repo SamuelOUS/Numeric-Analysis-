@@ -1,0 +1,30 @@
+import numpy as np
+
+def jacobi_sumas(A, b, x0, Nmax=100, tol=1e-6):
+    n = len(b)
+    x_sol = np.zeros_like(b)
+    error = 10
+    count = 0
+
+    while error > tol and count < Nmax:
+        for i in range(n):
+            suma = 0
+            for j in range(n):
+                if j != i:
+                    suma += A[i, j] * x0[j]
+            x_sol[i] = (b[i] - suma) / A[i, i]
+        
+        print(f"Iteración {count + 1}: {x_sol}")
+        error = np.max(np.abs(x_sol - x0))
+        x0 = np.copy(x_sol)
+        count += 1
+
+    return x_sol
+
+# Ejemplo de uso
+A = np.array([[3, -1, 0], [-1, 4, -1], [0, -1, 5]], dtype=float)
+b = np.array([2, 3, 5], dtype=float)
+x0 = np.zeros_like(b)
+
+sol = jacobi_sumas(A, b, x0)
+print("Solución final:", sol)
