@@ -17,6 +17,7 @@
 
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 #a) Gauss-Seidel Matrices
 A = np.array([[4, -1, -1, 0], [-1, 4, 0, -1], [-1, 0, 4, -1], [0, -1, -1, 4]], dtype=float)
@@ -34,4 +35,51 @@ print(f"Gauss-Seidel Sumas: T11: {st11:.4f}°C, T21: {st21:.4f}°C, T12: {st12:.
 
 print("")
 print(f"La diferencia en Gauss-Seidel entre sumas y matrices en cada nodo es de: T11: {np.abs(mt11 - st11)}, T21: {np.abs(mt21 - st21)}, T12: {np.abs(mt12 - st12)}, T22: {np.abs(mt22 - st22)}")
+
+#c) Jacobi Sumas
+A = np.array([[4, -1, -1, 0], [-1, 4, 0, -1], [-1, 0, 4, -1], [0, -1, -1, 4]], dtype=float)
+b = np.array([175, 75, 125, 25], dtype=float)
+
+sols_js, res_sum_j = jacobi_sumatorias(A, b)
+st11, st21, st12, st22 = sols_js
+print(f"Jacobi Sumas: T11: {st11:.4f}°C, T21: {st21:.4f}°C, T12: {st12:.4f}°C, T22: {st22:.4f}°C")
+print("")
+
+#b) Jacobi Matrices
+sols_jm, res_mat_j = jacobi_matrices(A, b)
+mt11, mt21, mt12, mt22 = sols_jm
+print(f"Jacobi Matrices: T11: {mt11:.4f}°C, T21: {mt21:.4f}°C, T12: {mt12:.4f}°C, T22: {mt22:.4f}°C")
+print("")
+
+print(f"La diferencia en Jacobi entre sumas y matrices en cada nodo es de: T11: {np.abs(mt11 - st11)}, T21: {np.abs(mt21 - st21)}, T12: {np.abs(mt12 - st12)}, T22: {np.abs(mt22 - st22)}")
+
+# Asegurarse de que ambas listas tengan el mismo número de iteraciones
+min_len_gs = min(len(res_mat_gsm), len(res_sum_gss))
+min_len_jac = min(len(res_mat_j), len(res_sum_j))
+
+# Calcular errores entre Gauss-Seidel matrices y sumas
+errors_gs = [np.max(np.abs(res_mat_gsm[i] - res_sum_gss[i])) for i in range(min_len_gs)]
+
+# Calcular errores entre Jacobi matrices y sumas
+errors_jac = [np.max(np.abs(res_mat_j[i] - res_sum_j[i])) for i in range(min_len_jac)]
+
+# Gráficas
+plt.figure(figsize=(8, 3))
+
+plt.subplot(121)
+plt.scatter(range(len(errors_gs)), errors_gs, c='blue', label='Error GS Matrices vs Sumas')
+plt.xlabel("Iteración")
+plt.ylabel("Error")
+plt.title("Gauss-Seidel")
+plt.legend()
+
+plt.subplot(122)
+plt.scatter(range(len(errors_jac)), errors_jac, c='green', label='Error Jacobi Matrices vs Sumas')
+plt.xlabel("Iteración")
+plt.ylabel("Error")
+plt.title("Jacobi")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
 
