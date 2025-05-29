@@ -1,0 +1,37 @@
+#Primero hay que tomar los nodos y promediar la temperatura de acuerdo a la temperatura de los nodos adyacentes.
+
+#Luego los organizamos para tener el SEL 4x4
+
+#T12=14(100+25+T22+T11) 
+#4T12−T22−T11=125 
+#T22=14(T12+25+0+T21) 
+#4T22−T12−T21=25 
+#T11=14(100+T12+T21+75) 
+#4T11−T12−T21=175 
+#T21=14(T11+T22+0+75) 
+#4T21−T11−T22=75 
+
+#Quedmos con el SEL
+
+#4T11−T21−T12−T11+4T21−T22−T11+4T12−T22−T21−T12+4T22=175=75=125=25
+
+
+import numpy as np
+
+#a) Gauss-Seidel Matrices
+A = np.array([[4, -1, -1, 0], [-1, 4, 0, -1], [-1, 0, 4, -1], [0, -1, -1, 4]], dtype=float)
+b = np.array([175, 75, 125, 25], dtype=float)
+
+sols_gsm, res_mat_gsm = gauss_seidel_matrices(A, b)
+mt11, mt21, mt12, mt22 = sols_gsm
+print(f"Gauss-Seidel Matrices: T11: {mt11:.4f}°C, T21: {mt21:.4f}°C, T12: {mt12:.4f}°C, T22: {mt22:.4f}°C")
+print("")
+
+#b) Gauss-Seidel Sumas
+sols_gss, res_sum_gss = gauss_seidel_sumas(A, b)
+st11, st21, st12, st22 = sols_gss
+print(f"Gauss-Seidel Sumas: T11: {st11:.4f}°C, T21: {st21:.4f}°C, T12: {st12:.4f}°C, T22: {st22:.4f}°C")
+
+print("")
+print(f"La diferencia en Gauss-Seidel entre sumas y matrices en cada nodo es de: T11: {np.abs(mt11 - st11)}, T21: {np.abs(mt21 - st21)}, T12: {np.abs(mt12 - st12)}, T22: {np.abs(mt22 - st22)}")
+
