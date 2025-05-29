@@ -1,0 +1,83 @@
+#Análisis del Movimiento de un Péndulo con Soporte Oscilatorio
+#Se analiza el movimiento de un péndulo que cuelga de un soporte móvil. El soporte se mueve siguiendo un desplazamiento oscilatorio dado por:
+
+#y(t)=Ysin(ωt) 
+
+#donde  Y  es la amplitud del movimiento y  ω  es la frecuencia angular.
+
+#El movimiento del péndulo está descrito por la ecuación diferencial no lineal:
+
+#θ′′=−gLsin(θ)+ω2LYcos(θ)sin(ωt) 
+
+#donde:
+
+#θ  es el ángulo del péndulo con respecto a la vertical,
+#g=9.80665m/s2  es la aceleración de la gravedad,
+#L=1.0m  es la longitud del péndulo,
+#Y=0.25m  es la amplitud del movimiento del soporte,
+#ω=2.5rad/s  es la frecuencia angular del soporte.
+#Las condiciones iniciales son:
+
+#θ(0)=π6,θ′(0)=0 
+
+#Para resolver esta ecuación, se transformó el problema en un sistema de dos ecuaciones de primer orden:
+
+#{θ′=ω1ω′1=−gLsin(θ)+ω2LYcos(θ)sin(ωt) 
+
+#Luego, se aplicó el método numérico de Runge-Kutta de cuarto orden (RK4) para obtener la solución numérica del sistema en el intervalo de tiempo de  t=0  a  t=10s  con un paso de integración pequeño para garantizar precisión.
+
+#Finalmente, se graficó el ángulo  θ  en función del tiempo y se determinó el valor máximo alcanzado por  θ  durante el intervalo analizado.
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+g = 9.80665
+L = 1.0
+Y = 0.25
+w = 2.5
+theta0 = np.pi / 6
+theta_dot0 = 0.0
+
+t0 = 0
+tf = 10
+h = 0.01
+n = int((tf - t0) / h)
+t = np.linspace(t0, tf, n)
+
+theta1 = np.zeros(n)
+theta2 = np.zeros(n)
+theta1[0] = theta0
+theta2[0] = theta_dot0
+
+def f1(t, th1, th2):
+    return th2
+
+def f2(t, th1, th2):
+    return - (g / L) * np.sin(th1) + (w**2 / L) * Y * np.cos(th1) * np.sin(w * t)
+
+for i in range(n - 1):
+    k1_1 = h * f1(t[i], theta1[i], theta2[i])
+    k1_2 = h * f2(t[i], theta1[i], theta2[i])
+
+    k2_1 = h * f1(t[i] + h/2, theta1[i] + k1_1/2, theta2[i] + k1_2/2)
+    k2_2 = h * f2(t[i] + h/2, theta1[i] + k1_1/2, theta2[i] + k1_2/2)
+
+    k3_1 = h * f1(t[i] + h/2, theta1[i] + k2_1/2, theta2[i] + k2_2/2)
+    k3_2 = h * f2(t[i] + h/2, theta1[i] + k2_1/2, theta2[i] + k2_2/2)
+
+    k4_1 = h * f1(t[i] + h, theta1[i] + k3_1, theta2[i] + k3_2)
+    k4_2 = h * f2(t[i] + h, theta1[i] + k3_1, theta2[i] + k3_2)
+
+    theta1[i+1] = theta1[i] + (k1_1 + 2*k2_1 + 2*k3_1 + k4_1) / 6
+    theta2[i+1] = theta2[i] + (k1_2 + 2*k2_2 + 2*k3_2 + k4_2) / 6
+
+theta_max = np.max(theta1)
+print(f"Máximo θ (rad): {theta_max:.4f}")
+print(f"Máximo θ (°): {np.degrees(theta_max):.2f}")
+
+plt.plot(t, theta1)
+plt.title("θ vs t")
+plt.xlabel("Tiempo (s)")
+plt.ylabel("θ (rad)")
+plt.grid()
+plt.show()
