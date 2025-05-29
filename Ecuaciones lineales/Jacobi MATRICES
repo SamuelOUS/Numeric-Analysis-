@@ -1,6 +1,7 @@
 import numpy as np
+import time
 
-def jacobi_matrices(A, b, x0, tol=1e-6):
+def jacobi_matrices(A, b, x0=None, max_its=50, tol=1e-6):
     D = np.diag(np.diag(A))
     L = np.tril(A, -1)
     U = np.triu(A, 1)
@@ -8,30 +9,27 @@ def jacobi_matrices(A, b, x0, tol=1e-6):
     Tj = np.linalg.inv(D) @ (L + U)
     Cj = np.linalg.inv(D) @ b
 
-    # Verificamos si el método converge
-    val_propios = np.linalg.eigvals(Tj)
-    radio = max(abs(val_propios))
+    if x0 is None:
+        x0 = np.zeros(len(b))
+        
+    res = [np.copy(x0)]
+    v_propios, _ = np.linalg.eig(Tj)
+    radio = max(abs(v_propios))
 
-    if radio >= 1:
-        print("El sistema no converge con el método de Jacobi.")
-        return None
+    if radio < 1:
+        start = time.time()
+        error = 1
+        k = 0
+        while k < max_its and error > tol:
+            x1 = Tj @ x0 + Cj
+            error = np.max(np.abs(x1 - x0))
+            x0 = np.copy(x1)
+            res.append(x1)
+            k += 1
+        end = time.time()
 
-    error = 1
-    count = 0
-    while error > tol:
-        x1 = Tj @ x0 + Cj
-        error = np.max(np.abs(x1 - x0))
-        x0 = np.copy(x1)
-        count += 1
-        print(f"Iteración {count}: {x1}")
-
-    return x1
-
-# Ejemplo de uso
-A = np.array([[3, -1, 0], [-1, 4, -1], [0, -1, 5]], dtype=float)
-b = np.array([2, 3, 5], dtype=float)
-x0 = np.zeros_like(b)
-
-sol = jacobi_matrices(A, b, x0)
-if sol is not None:
-    print("Solución final:", sol)
+        print(f"Tiempo de cómputo Jacobi Matrices: {end - start:.4f}s")
+        return x1, res
+    else:
+        print("No converge con el método de Jacobi")
+        return None, res
