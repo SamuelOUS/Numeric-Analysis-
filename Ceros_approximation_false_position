@@ -1,13 +1,10 @@
-import math
 import numpy as np
-import sympy as sp
-import matplotlib as plt
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
 
-f = lambda  x: x**10 -1
+f = lambda  x: x**10 - 1
 aproximaciones  = np.linspace(0, 1.5, 100)
-plt.pyplot.plot(aproximaciones, f(aproximaciones), 'b' )
-plt.pyplot.axhline(0, color = 'red', linewidth = 1, linestyle = 'dashed')
+plt.plot(aproximaciones, f(aproximaciones), 'b' )
+plt.axhline(0, color = 'red', linewidth = 1, linestyle = 'dashed')
 valores = []
 
 def FalsaPosicion(f, a,b, error):
@@ -15,21 +12,19 @@ def FalsaPosicion(f, a,b, error):
         print("No se garantiza el teorema de Bolzano")
         return
     else:
-            p = b - f(b) * ((a - b) / (f(a) - f(b)))
-            while abs(f(p)) > error:
-                p = b - f(b)*((a-b)/(f(a)- f(b)))
-                valores.append(p)
+        p = b - f(b) * ((a - b) / (f(a) - f(b)))
+        while abs(f(p)) > error:
+            p = b - f(b)*((a-b)/(f(a)- f(b)))
+            valores.append(p)
 
-                if  (f(a)* f(p) > 0):
-                      a = p
+            if (f(a)*f(p) > 0):
+                a = p
+            else:
+                b = p
+        print(f"Iteraciones: {len(valores)}")
+        return p
 
-                else:
-                     b = p
-            print(len(valores))
-            return p
+print(f"Raíz aproximada: {FalsaPosicion(f, 0, 1.5, 1e-5)}")
 
-print(FalsaPosicion(f, 0, 1.5, 1e-5))
-
-plt.pyplot.grid()
-plt.pyplot.show()
-
+plt.grid()
+plt.show()
