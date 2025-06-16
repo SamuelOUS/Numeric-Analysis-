@@ -17,5 +17,5 @@ def newton(f, df, x0, tol=1e-5):
 
 raiz, its = newton(f, df, 2.0)
 
-print(f"Raíz aproximada (x*): {np.format_float_positional(raiz, precision=7, unique=False, fractional=False)}")
+print(f"Raíz aproximada (x*): {raiz}")
 print(f"Iteraciones: {its}")
